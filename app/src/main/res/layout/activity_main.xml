@@ -9,10 +9,26 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="meber.musicherring.MainActivity">
 
-    <TextView
+    <Button
+        android:text="Paus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        android:id="@+id/textView" />
+        android:id="@+id/stop"
+        android:layout_alignBaseline="@+id/play"
+        android:layout_alignBottom="@+id/play"
+        android:layout_toLeftOf="@+id/play"
+        android:layout_toStartOf="@+id/play" />
+
+    <Button
+        android:text="Spela"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/play"
+        android:layout_marginBottom="20dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="86dp"
+        android:layout_marginEnd="86dp" />
 
 </RelativeLayout>
