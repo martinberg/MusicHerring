@@ -14,12 +14,14 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
+
 public class MainActivity extends AppCompatActivity {
     private MediaPlayer mediaPlayer;
     private Button play_audio_button, pause_audio_button;
-    private String url, newurl, str;
+    private String url, newurl, str, str2;
     private Intent intent;
-    public ArrayList<String> allURls;
+    public ArrayList<String> allURls, PlayList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +89,32 @@ public class MainActivity extends AppCompatActivity {
             pause_audio_button.setEnabled(true);
         } else {
             Toast.makeText(getApplicationContext(), "URL:en tom", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void addToPlaylist(String URL){
+        PlayList.add(URL);
+    }
+
+    private ArrayList<String> getPlayList(){
+        return PlayList;
+    }
+
+    private void delFirstFromPlayList(){
+        PlayList.remove(0);
+    }
+
+    private void startPlayList(){
+        while (!getPlayList().isEmpty()){
+            try {
+                mediaPlayer.setDataSource(getPlayList().get(0));
+                mediaPlayer.prepare();
+                mediaPlayer.start();
+                mediaPlayer.reset();
+                delFirstFromPlayList();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
