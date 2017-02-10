@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.Toast;
 import java.io.BufferedReader;
@@ -16,12 +15,11 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    ArrayList<String> allURls = new ArrayList<String>();
     private MediaPlayer mediaPlayer;
     private Button play_audio_button, pause_audio_button;
-    private String url, trackinfo;
+    private String url, newurl, str;
     private Intent intent;
-    private MimeTypeMap mm;
+    public ArrayList<String> allURls;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,17 +32,12 @@ public class MainActivity extends AppCompatActivity {
         mediaPlayer = new MediaPlayer();
         intent = getIntent();
 
-        trackinfo = MimeTypeMap.getSingleton().getMimeTypeFromExtension("m3u");
-
-        Log.d("VIKTIGT", trackinfo);
-
-        //Hämtar url från intent
         if (intent.getScheme() != null) {
             url = intent.getDataString();
-            playURL(url);
+            readURLs(url);
+            newurl = allURls.get(0);
+            playURL(newurl);
         }
-
-        //url = "http://music.h4xxel.org/Cream/1966%20-%20Fresh%20Cream/01%20-%20I%20Feel%20Free.mp3";
 
         play_audio_button.setOnClickListener(new View.OnClickListener()
         {
@@ -64,13 +57,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public ArrayList<String> readURLs(String url_in) {
+    private ArrayList<String> readURLs(String url_in) {
         if (url_in == null) return null;
         try {
-
             URL urls = new URL(url_in);
             BufferedReader in = new BufferedReader(new InputStreamReader(urls.openStream()));
-            String str;
             while ((str = in.readLine()) != null) {
                 allURls.add(str);
             }
