@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -14,14 +13,14 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
-
 public class MainActivity extends AppCompatActivity {
     private MediaPlayer mediaPlayer;
     private Button play_audio_button, pause_audio_button;
     private String url, newurl, str, str2;
     private Intent intent;
-    public ArrayList<String> allURls, PlayList;
+    private URL urls;
+    private ArrayList<String> PlayList;
+    private BufferedReader in;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,19 +31,45 @@ public class MainActivity extends AppCompatActivity {
         pause_audio_button = (Button) findViewById(R.id.stop);
 
         mediaPlayer = new MediaPlayer();
+        PlayList = new ArrayList<String>();
+
         intent = getIntent();
 
         if (intent.getScheme() != null) {
             url = intent.getDataString();
-            readURLs(url);
-            newurl = allURls.get(0);
-            playURL(newurl);
+            //readURLs(url);
+            //newurl = allURls.get(0);
+            //playURL(newurl);
+            /*if (url.contains("m3u")) {
+                readURLs(url);
+            } else {
+                addToPlaylist(url);
+            }*/
+            //addToPlaylist(url);
+
+            //url = "http://music.h4xxel.org/Eminem/2003%20-%20The%20Eminem%20Show/allrecursive.m3u";
+
+            m3uToPlayList(url);
+            startPlayList();
         }
+
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                mediaPlayer.reset();
+                if (getPlayList().isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "Spellistan är tom", Toast.LENGTH_SHORT).show();
+                } else {
+                    delFirstFromPlayList();
+                    startPlayList();
+                }
+            }
+        });
 
         play_audio_button.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Playing sound", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Spelar ljud", Toast.LENGTH_SHORT).show();
                 mediaPlayer.start();
             }
         });
@@ -59,36 +84,13 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private ArrayList<String> readURLs(String url_in) {
-        if (url_in == null) return null;
-        try {
-            URL urls = new URL(url_in);
-            BufferedReader in = new BufferedReader(new InputStreamReader(urls.openStream()));
-            while ((str = in.readLine()) != null) {
-                allURls.add(str);
-            }
-            in.close();
-            return allURls;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    private void playURL(String URL) {
-        if (URL != null) {
-            try {
-                Log.d("URL", URL);
-                mediaPlayer.setDataSource(URL);
-                mediaPlayer.prepare();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            mediaPlayer.start();
-            play_audio_button.setEnabled(true);
-            pause_audio_button.setEnabled(true);
+    private void m3uToPlayList(String URL) {
+        if (URL == null) {
+            Toast.makeText(getApplicationContext(), "URL:en är tom", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(getApplicationContext(), "URL:en tom", Toast.LENGTH_SHORT).show();
+            ASyncHttpParamses paramses = new ASyncHttpParamses(url, PlayList);
+            ASyncHttp aSyncHttp = new ASyncHttp();
+            aSyncHttp.execute(paramses);
         }
     }
 
@@ -105,16 +107,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startPlayList(){
-        while (!getPlayList().isEmpty()){
+        if (!getPlayList().isEmpty()){
             try {
                 mediaPlayer.setDataSource(getPlayList().get(0));
                 mediaPlayer.prepare();
                 mediaPlayer.start();
-                mediaPlayer.reset();
-                delFirstFromPlayList();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        } else {
+            Toast.makeText(getApplicationContext(), "Spellistan är tom", Toast.LENGTH_SHORT).show();
         }
     }
 }
